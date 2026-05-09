@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { background: #0a0a0a; color: #f5f5f7; min-height: 100%; }
+body { font-family: ui-sans-serif, system-ui, "Segoe UI", Tahoma, Arial, sans-serif; }
+
+.card { background: #16161a; border: 1px solid #26262b; border-radius: 14px; }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:10px; font-weight:600; transition:all .15s; cursor:pointer; }
+.btn-primary { background: linear-gradient(135deg, #facc15, #f59e0b); color:#0a0a0a; }
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-ghost { background:#1d1d22; color:#f5f5f7; border:1px solid #2a2a31; }
+.btn-ghost:hover { background:#222229; }
+.btn-danger { background:#7f1d1d; color:#fee2e2; }
+.input { width:100%; background:#0f0f12; border:1px solid #2a2a31; border-radius:10px; padding:.65rem .9rem; color:#fff; outline:none; }
+.input:focus { border-color:#facc15; }
+.label { display:block; margin-bottom:.35rem; color:#c9c9d2; font-size:.875rem; }
+.badge { display:inline-block; padding:.2rem .55rem; border-radius:999px; font-size:.75rem; font-weight:600; }
+.badge-yellow { background:#3b2f00; color:#facc15; }
+.badge-blue { background:#0b2238; color:#60a5fa; }
+.badge-green { background:#0c2e1c; color:#4ade80; }
+.badge-red { background:#3a0f12; color:#f87171; }
+.badge-gray { background:#1f1f24; color:#a1a1aa; }
+table { width:100%; border-collapse:collapse; }
+th, td { padding:.75rem; text-align:start; border-bottom:1px solid #26262b; font-size:.9rem; }
+th { color:#a1a1aa; font-weight:600; background:#111114; }
