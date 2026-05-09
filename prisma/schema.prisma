@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+enum UserStatus {
+  ACTIVE
+  FROZEN
+  BLOCKED
+}
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  PARTIAL
+  CANCELED
+  REFUNDED
+  PROCESSING
+  FAILED
+}
+enum TopUpStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  username    String     @unique
+  password    String
+  role        Role       @default(USER)
+  status      UserStatus @default(ACTIVE)
+  balance     Float      @default(0)
+  totalSpent  Float      @default(0)
+  createdAt   DateTime   @default(now())
+  orders      Order[]
+  topUps      TopUpRequest[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  markup    Float     @default(20)
+  services  Service[]
+}
+
+model Service {
+  id              Int       @id
+  providerService Int       @unique
+  name            String
+  description     String?   @db.Text
+  type            String?
+  category        String?
+  categoryId      String?
+  cat             Category? @relation(fields: [categoryId], references: [id])
+  rate            Float     // provider price per 1000
+  sellRate        Float     // user-facing price per 1000
+  markup          Float     @default(20)
+  min             Int
+  max             Int
+  refill          Boolean   @default(false)
+  cancel          Boolean   @default(false)
+  active          Boolean   @default(true)
+  hidden          Boolean   @default(false)
+  warning         String?   @db.Text
+  updatedAt       DateTime  @updatedAt
+  orders          Order[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  serviceId       Int
+  service         Service     @relation(fields: [serviceId], references: [id])
+  providerOrderId String?
+  link            String
+  quantity        Int
+  charge          Float       // user paid
+  cost            Float       // provider cost
+  profit          Float
+  startCount      Int?
+  remains         Int?
+  status          OrderStatus @default(PENDING)
+  refillId        String?
+  note            String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model PaymentMethod {
+  id           String  @id @default(cuid())
+  code         String  @unique // USDT_BEP20, USDT_TRC20, CASH_SHAM, SYP, USD, SYRIATEL_CASH
+  name         String
+  account      String
+  instructions String  @db.Text
+  currency     String
+  rate         Float   @default(1)  // value of 1 unit in USD (or base wallet currency)
+  minAmount    Float   @default(1)
+  maxAmount    Float   @default(100000)
+  active       Boolean @default(true)
+}
+
+model TopUpRequest {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  methodCode  String
+  amount      Float       // amount the user said they sent (in method currency)
+  txId        String
+  note        String?
+  status      TopUpStatus @default(PENDING)
+  creditedAmount Float?   // admin enters credited wallet amount
+  adminNote   String?
+  createdAt   DateTime    @default(now())
+  reviewedAt  DateTime?
+}
+
+model SiteSetting {
+  key   String @id
+  value String @db.Text
+}
+
+model ButtonConfig {
+  id      String  @id @default(cuid())
+  label   String
+  url     String
+  message String?
+  active  Boolean @default(true)
+  order   Int     @default(0)
+}
+
+model AdminActionLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  target    String?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+}
+
+model APIProviderConfig {
+  id       String  @id @default("default")
+  baseUrl  String
+  apiKey   String
+  active   Boolean @default(true)
+  updatedAt DateTime @updatedAt
+}
